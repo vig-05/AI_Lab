@@ -1,18 +1,16 @@
 import math
 
 def display_board(board):
-    r1 = [board[0] if board[0] != ' ' else '_', board[1] if board[1] != ' ' else '_', board[2] if board[2] != ' ' else '_']
-    r2 = [board[3] if board[3] != ' ' else '_', board[4] if board[4] != ' ' else '_', board[5] if board[5] != ' ' else '_']
-    r3 = [board[6], board[7], board[8]]
-   
-    print(f" {r1[0]} | {r1[1]} | {r1[2]} ")
-    print(f" {r2[0]} | {r2[1]} | {r2[2]} ")
-    print(f" {r3[0]} | {r3[1]} | {r3[2]} ")
+    b = [cell if cell != ' ' else '_' for cell in board]
+    print(f" {b[0]} | {b[1]} | {b[2]} ")
+    print(f" {b[3]} | {b[4]} | {b[5]} ")
+    print(f" {b[6]} | {b[7]} | {b[8]} ")
 
 def check_win(board, player):
-    win_conditions = [, [3, 4, 5], [6, 7, 8],
-, [1, 4, 7], [2, 5, 8],
-, [2, 4, 6]
+    win_conditions = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],  # Rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],  # Columns
+        [0, 4, 8], [2, 4, 6]               # Diagonals
     ]
     for condition in win_conditions:
         if board[condition[0]] == board[condition[1]] == board[condition[2]] == player:
@@ -64,7 +62,7 @@ def find_best_move(board):
 
 def tic_tac_toe():
     board = [' '] * 9
-   
+    
     print("TIC-TAC-TOE")
     print("You are X")
     print("Computer is O\n")
@@ -77,19 +75,16 @@ def tic_tac_toe():
             try:
                 move_input = input("Enter position (1-9) : ").strip()
                 position = int(move_input) - 1
-               
+                
                 if position < 0 or position > 8:
                     print("Invalid move. Try again.\n")
-                    valid_move = False
                 elif board[position] != ' ':
                     print("Invalid move. Try again.\n")
-                    valid_move = False
                 else:
                     board[position] = 'X'
                     valid_move = True
             except ValueError:
                 print("Invalid move. Try again.\n")
-                valid_move = False
 
         display_board(board)
         print()
@@ -97,14 +92,14 @@ def tic_tac_toe():
         if check_win(board, 'X'):
             print("You win!")
             break
-       
+        
         if is_board_full(board):
             print("Draw!")
             break
 
         computer_position = find_best_move(board)
         board[computer_position] = 'O'
-       
+        
         print(f"Computer chose position: {computer_position + 1}")
         display_board(board)
         print()
@@ -112,7 +107,7 @@ def tic_tac_toe():
         if check_win(board, 'O'):
             print("Computer wins!")
             break
-       
+        
         if is_board_full(board):
             print("Draw!")
             break
