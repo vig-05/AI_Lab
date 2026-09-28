@@ -1,54 +1,76 @@
-class VacuumEnvironment:
-    def __init__(self, room_a_state, room_b_state, vacuum_position):
-        self.rooms = {
-            'A': room_a_state,
-            'B': room_b_state
-        }
-        self.vacuum_pos = vacuum_position
+def get_valid_input(prompt, valid_options):
+    """Helper function to validate user input against allowed options."""
+    while True:
+        user_input = input(prompt).strip().upper()
+        if user_input in valid_options:
+            return valid_options[user_input]
+        print(f"Invalid input. Please choose from: {', '.join(set(valid_options.keys()))}")
 
-    def run_agent(self):
+
+def interactive_vacuum_agent():
+    print("=" * 50)
+    print("      2-ROOM VACUUM WORLD INTERACTIVE AGENT     ")
+    print("=" * 50)
+
+    # Option mapping for easy user input
+    status_options = {
+        'DIRTY': 'DIRTY', 'D': 'DIRTY',
+        'CLEAN': 'CLEAN', 'C': 'CLEAN'
+    }
+    position_options = {
+        'A': 'A', 'B': 'B'
+    }
+
+    while True:
+        print("\n--- Configure Initial Environment State ---")
+        room_a = get_valid_input("Enter status for Room A (DIRTY/CLEAN or D/C): ", status_options)
+        room_b = get_valid_input("Enter status for Room B (DIRTY/CLEAN or D/C): ", status_options)
+        vacuum_pos = get_valid_input("Enter initial Vacuum Position (A/B): ", position_options)
+
+        # Initialize environment state
+        rooms = {'A': room_a, 'B': room_b}
+        current_pos = vacuum_pos
         actions = []
-        
-        # Continue taking actions until both rooms are CLEAN
-        while self.rooms['A'] == 'DIRTY' or self.rooms['B'] == 'DIRTY':
-            current_room_state = self.rooms[self.vacuum_pos]
+
+        print("\n--- Starting Simulation ---")
+        print(f"Initial Setup: Room A = {rooms['A']} | Room B = {rooms['B']} | Vacuum Position = {current_pos}\n")
+
+        step = 1
+        while rooms['A'] == 'DIRTY' or rooms['B'] == 'DIRTY':
+            current_state = rooms[current_pos]
             
-            if current_room_state == 'DIRTY':
-                # Action 1: Suck dirt if current room is dirty
-                actions.append("SUCK")
-                self.rooms[self.vacuum_pos] = 'CLEAN'
+            if current_state == 'DIRTY':
+                action = "SUCK"
+                print(f"Step {step}: Vacuum at Room {current_pos} is DIRTY  --> Action: {action}")
+                rooms[current_pos] = 'CLEAN'
+                actions.append(action)
             else:
-                # Action 2: Move to the other room if current room is clean
-                if self.vacuum_pos == 'A':
-                    actions.append("MOVE RIGHT")
-                    self.vacuum_pos = 'B'
-                elif self.vacuum_pos == 'B':
-                    actions.append("MOVE LEFT")
-                    self.vacuum_pos = 'A'
-        
-        action_sequence = " → ".join(actions) if actions else "No cleaning required"
-        return action_sequence, self.rooms
+                if current_pos == 'A':
+                    action = "MOVE RIGHT"
+                    next_pos = 'B'
+                else:
+                    action = "MOVE LEFT"
+                    next_pos = 'A'
+                
+                print(f"Step {step}: Vacuum at Room {current_pos} is CLEAN  --> Action: {action}")
+                actions.append(action)
+                current_pos = next_pos
+            
+            step += 1
+
+        if not actions:
+            print("Step 1: Both rooms are already CLEAN! No cleaning required.")
+
+        print("\n--- Final Results ---")
+        print(f"Sequence of Actions : {' -> '.join(actions) if actions else 'None'}")
+        print(f"Final Room States   : Room A = {rooms['A']} | Room B = {rooms['B']}")
+
+        # Ask to replay
+        again = input("\nWould you like to test another scenario? (y/n): ").strip().lower()
+        if again not in ['y', 'yes']:
+            print("\nSimulation ended. Goodbye!")
+            break
 
 
-# Defined Test Cases (TC1 to TC8)
-test_cases = [
-    {"tc": "TC1", "A": "DIRTY", "B": "CLEAN", "pos": "A"},
-    {"tc": "TC2", "A": "CLEAN", "B": "DIRTY", "pos": "A"},
-    {"tc": "TC3", "A": "DIRTY", "B": "DIRTY", "pos": "A"},
-    {"tc": "TC4", "A": "CLEAN", "B": "CLEAN", "pos": "A"},
-    {"tc": "TC5", "A": "CLEAN", "B": "DIRTY", "pos": "B"},
-    {"tc": "TC6", "A": "DIRTY", "B": "CLEAN", "pos": "B"},
-    {"tc": "TC7", "A": "DIRTY", "B": "DIRTY", "pos": "B"},
-    {"tc": "TC8", "A": "CLEAN", "B": "CLEAN", "pos": "B"},
-]
-
-# Run and Display Results
-print(f"{'Test Case':<10} | {'Room A':<8} | {'Room B':<8} | {'Pos':<5} | {'Actions Taken':<28} | {'Final State'}")
-print("-" * 80)
-
-for tc in test_cases:
-    env = VacuumEnvironment(tc["A"], tc["B"], tc["pos"])
-    actions, final_state = env.run_agent()
-    final_state_str = f"A={final_state['A']}, B={final_state['B']}"
-    
-    print(f"{tc['tc']:<10} | {tc['A']:<8} | {tc['B']:<8} | {tc['pos']:<5} | {actions:<28} | {final_state_str}")
+if __name__ == "__main__":
+    interactive_vacuum_agent()
