@@ -1,0 +1,54 @@
+class VacuumEnvironment:
+    def __init__(self, room_a_state, room_b_state, vacuum_position):
+        self.rooms = {
+            'A': room_a_state,
+            'B': room_b_state
+        }
+        self.vacuum_pos = vacuum_position
+
+    def run_agent(self):
+        actions = []
+        
+        # Continue taking actions until both rooms are CLEAN
+        while self.rooms['A'] == 'DIRTY' or self.rooms['B'] == 'DIRTY':
+            current_room_state = self.rooms[self.vacuum_pos]
+            
+            if current_room_state == 'DIRTY':
+                # Action 1: Suck dirt if current room is dirty
+                actions.append("SUCK")
+                self.rooms[self.vacuum_pos] = 'CLEAN'
+            else:
+                # Action 2: Move to the other room if current room is clean
+                if self.vacuum_pos == 'A':
+                    actions.append("MOVE RIGHT")
+                    self.vacuum_pos = 'B'
+                elif self.vacuum_pos == 'B':
+                    actions.append("MOVE LEFT")
+                    self.vacuum_pos = 'A'
+        
+        action_sequence = " → ".join(actions) if actions else "No cleaning required"
+        return action_sequence, self.rooms
+
+
+# Defined Test Cases (TC1 to TC8)
+test_cases = [
+    {"tc": "TC1", "A": "DIRTY", "B": "CLEAN", "pos": "A"},
+    {"tc": "TC2", "A": "CLEAN", "B": "DIRTY", "pos": "A"},
+    {"tc": "TC3", "A": "DIRTY", "B": "DIRTY", "pos": "A"},
+    {"tc": "TC4", "A": "CLEAN", "B": "CLEAN", "pos": "A"},
+    {"tc": "TC5", "A": "CLEAN", "B": "DIRTY", "pos": "B"},
+    {"tc": "TC6", "A": "DIRTY", "B": "CLEAN", "pos": "B"},
+    {"tc": "TC7", "A": "DIRTY", "B": "DIRTY", "pos": "B"},
+    {"tc": "TC8", "A": "CLEAN", "B": "CLEAN", "pos": "B"},
+]
+
+# Run and Display Results
+print(f"{'Test Case':<10} | {'Room A':<8} | {'Room B':<8} | {'Pos':<5} | {'Actions Taken':<28} | {'Final State'}")
+print("-" * 80)
+
+for tc in test_cases:
+    env = VacuumEnvironment(tc["A"], tc["B"], tc["pos"])
+    actions, final_state = env.run_agent()
+    final_state_str = f"A={final_state['A']}, B={final_state['B']}"
+    
+    print(f"{tc['tc']:<10} | {tc['A']:<8} | {tc['B']:<8} | {tc['pos']:<5} | {actions:<28} | {final_state_str}")
